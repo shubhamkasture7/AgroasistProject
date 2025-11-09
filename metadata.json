@@ -1,0 +1,8 @@
+{
+  "name": "AgroAssist",
+  "description": "A web application for farmers to get weather forecasts based on their location and log pesticide usage with photo uploads. It provides a clean, user-friendly interface for essential farming tasks.",
+  "requestFramePermissions": [
+    "geolocation",
+    "camera"
+  ]
+}
