@@ -13,20 +13,20 @@ export interface User {
   displayName: string;
 }
 
-export interface CurrentWeather {
+export type CurrentWeather = {
   temp: number;
   humidity: number;
+  wind_speed: number;
   description: string;
-  icon: string;
-}
+};
 
-export interface DailyWeather {
+export type DailyWeather = {
   date: Date;
-  min: number;
   max: number;
+  min: number;
   description: string;
-  icon: string;
-}
+};
+
 
 export interface PesticideLog {
   id: string;

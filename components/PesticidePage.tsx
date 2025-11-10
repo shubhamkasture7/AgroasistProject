@@ -1,13 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import Button from './ui/Button';
-import Input from './ui/Input';
-import Card from './ui/Card';
 import { createLog, getRecentLogs, type PesticideLog } from '../services/pesticideFirestoreService';
 import { compressImageToDataUrl } from '../utils/imageCompression';
+import { getCurrentUserName } from '../services/userService';
+import { Camera } from 'lucide-react';
 
 const PesticidePage: React.FC = () => {
   const { user } = useAuth();
+
+  const [farmerName, setFarmerName] = useState<string>('Farmer');
 
   const [pesticideName, setPesticideName] = useState('');
   const [description, setDescription] = useState('');
@@ -21,6 +22,10 @@ const PesticidePage: React.FC = () => {
   const [isFetching, setIsFetching] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    (async () => setFarmerName(await getCurrentUserName()))();
+  }, [user?.uid]);
 
   useEffect(() => {
     if (!user) return;
@@ -54,7 +59,6 @@ const PesticidePage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!user) {
       setMessage('Please sign in first.');
       return;
@@ -78,7 +82,7 @@ const PesticidePage: React.FC = () => {
             quality: 0.7,
             minQuality: 0.4,
             targetFormat: 'image/webp',
-            maxBytes: 280 * 1024, // ~280 KB
+            maxBytes: 280 * 1024,
           });
 
         imageDataUrl = dataUrl;
@@ -86,7 +90,6 @@ const PesticidePage: React.FC = () => {
           `Compressed to ${(bytes / 1024).toFixed(0)} KB, ${width}x${height}, q=${qualityUsed.toFixed(2)}, ${format.replace('image/','')}`
         );
 
-        // Guardrail for Firestore doc size
         if (bytes > 900 * 1024) {
           throw new Error('Image still too large for Firestore document (limit ~1MB). Pick a smaller image.');
         }
@@ -110,26 +113,39 @@ const PesticidePage: React.FC = () => {
     }
   };
 
+  const todayISO = new Date().toISOString().slice(0, 10);
+
+  // NOTE: no header/app bar and no bottom nav here—those are provided by the parent layout.
   return (
-    <div className="space-y-6">
-      <Card>
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">New Pesticide Log (Firestore only)</h2>
+    <div className="max-w-xl mx-auto px-4 py-4 space-y-6">
+      {/* New Log Card */}
+      <section className="bg-white rounded-2xl shadow-xl border border-gray-100 p-4 sm:p-5">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">
+          New Pesticide Log <span className="text-gray-400 text-sm">(Firestore only)</span>
+        </h2>
+
         {message && (
-          <p className={`text-center mb-4 ${message.startsWith('✅') ? 'text-green-600' : 'text-red-500'}`}>
+          <p className={`text-center mb-4 ${message.startsWith('✅') ? 'text-green-600' : 'text-red-600'}`}>
             {message}
           </p>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="Pesticide Name"
-            id="pesticideName"
-            type="text"
-            value={pesticideName}
-            onChange={(e) => setPesticideName(e.target.value)}
-            placeholder="e.g., Imidacloprid"
-            required
-          />
+          {/* Pesticide Name */}
+          <div>
+            <label htmlFor="pesticideName" className="block text-sm font-medium text-gray-700 mb-1">
+              Pesticide Name
+            </label>
+            <input
+              id="pesticideName"
+              type="text"
+              value={pesticideName}
+              onChange={(e) => setPesticideName(e.target.value)}
+              placeholder="e.g., Imidacloprid"
+              required
+              className="w-full rounded-xl border-2 border-green-200 bg-white px-3 py-2 placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200"
+            />
+          </div>
 
           {/* Description */}
           <div>
@@ -138,90 +154,114 @@ const PesticidePage: React.FC = () => {
             </label>
             <textarea
               id="description"
+              rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
               placeholder="e.g., Applied after signs of aphids. Dilution 1ml/L."
+              className="w-full rounded-xl border-2 border-green-200 bg-white px-3 py-2 placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200"
             />
           </div>
 
-          {/* Image (stored as Data URL in Firestore) */}
+          {/* Image (Firestore Data URL) */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Photo (stored in Firestore)</label>
-            <div className="mt-1 flex items-center">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                ref={fileInputRef}
-                className="hidden"
-                id="image-upload"
-              />
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Photo (stored in Firestore)
+            </label>
+
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              ref={fileInputRef}
+              className="hidden"
+              id="image-upload"
+            />
+
+            <div className="flex items-center gap-3">
               <label
                 htmlFor="image-upload"
-                className="cursor-pointer bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-green-600 text-white px-4 py-2 text-sm font-medium shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
               >
-                Select Image
+                <span>Select Image</span>
               </label>
+
+              <div className="ml-auto flex items-center gap-3 rounded-2xl bg-gray-50 border border-gray-200 px-3 py-2 shadow-sm">
+                <div>
+                  <div className="text-sm font-medium text-gray-800">Farmer: {farmerName}</div>
+                  <div className="text-xs text-gray-500">User ID: {user?.uid || '—'}</div>
+                  <div className="text-xs text-gray-500">Date: {todayISO}</div>
+                </div>
+                <div className="flex-none">
+                  <div className="rounded-full bg-white shadow p-2 border border-gray-200">
+                    <Camera className="w-5 h-5 text-green-600" />
+                  </div>
+                </div>
+              </div>
             </div>
+
             {imagePreview && (
               <div className="mt-4">
-                <img src={imagePreview} alt="Preview" className="rounded-lg max-h-48 w-auto" />
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="rounded-xl max-h-56 w-auto border border-gray-200 shadow"
+                />
               </div>
             )}
-            {compressionInfo && (
-              <p className="mt-2 text-xs text-gray-500">{compressionInfo}</p>
-            )}
+            {compressionInfo && <p className="mt-2 text-xs text-gray-500">{compressionInfo}</p>}
           </div>
 
-          <div className="p-3 bg-gray-100 rounded-lg text-sm text-gray-700">
-            <p><strong>Farmer:</strong> {user?.displayName || '—'}</p>
-            <p><strong>User ID:</strong> {user?.uid || '—'}</p>
-            <p><strong>Date:</strong> {new Date().toISOString().slice(0, 10)}</p>
-          </div>
-
-          <Button type="submit" isLoading={isLoading} disabled={!pesticideName.trim()}>
-            Save Log
-          </Button>
+          {/* Save */}
+          <button
+            type="submit"
+            disabled={!pesticideName.trim() || isLoading}
+            className="w-full rounded-xl bg-green-600 text-white font-semibold py-3 shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300 disabled:opacity-60"
+          >
+            {isLoading ? 'Saving…' : 'Save Log'}
+          </button>
         </form>
-      </Card>
+      </section>
 
-      <Card>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-800">Recent Logs</h2>
+      {/* Recent Logs */}
+      <section className="bg-white rounded-2xl shadow-xl border border-gray-100 p-4 sm:p-5">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-xl font-bold text-gray-800">Recent Logs</h3>
           {isFetching && <span className="text-sm text-gray-500">Loading…</span>}
         </div>
 
         {recentLogs.length > 0 ? (
-          <ul className="space-y-4">
+          <ul className="space-y-3">
             {recentLogs.map((log) => (
-              <li key={log.id} className="flex items-start gap-4 border-b pb-3 last:border-0">
+              <li
+                key={log.id}
+                className="rounded-2xl border border-gray-200 bg-white p-3 shadow-sm flex items-center gap-3"
+              >
                 {log.imageDataUrl ? (
                   <img
                     src={log.imageDataUrl}
                     alt={log.pesticideName}
-                    className="w-16 h-16 rounded-md object-cover flex-none"
+                    className="w-14 h-14 rounded-xl object-cover flex-none border border-gray-200"
                   />
                 ) : (
-                  <div className="w-16 h-16 rounded-md bg-gray-200 flex items-center justify-center text-[10px] text-gray-500">
+                  <div className="w-14 h-14 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center text-[10px] text-gray-500">
                     No image
                   </div>
                 )}
-                <div className="min-w-0">
-                  <div className="font-semibold truncate">{log.pesticideName}</div>
-                  <div className="text-sm text-gray-500">{log.dateISO}</div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="font-semibold text-gray-900 truncate">{log.pesticideName}</div>
+                  <div className="text-xs text-gray-500">{log.dateISO}</div>
                   {log.description && (
-                    <div className="text-sm text-gray-700 mt-1 line-clamp-2">{log.description}</div>
+                    <div className="text-sm text-gray-700 mt-0.5 line-clamp-2">{log.description}</div>
                   )}
                 </div>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-gray-500 text-center">No logs yet.</p>
+          <p className="text-gray-500 text-center py-2">No logs yet.</p>
         )}
-      </Card>
+      </section>
     </div>
   );
 };
