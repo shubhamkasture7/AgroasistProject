@@ -4,7 +4,7 @@ import GoogleButton from './ui/GoogleButton';
 import { Mail, Lock, Sprout } from 'lucide-react';
 
 type Props = {
-  onSwitch?: () => void; // switch to Register
+  onSwitch?: () => void; // Register कडे स्विच करण्यासाठी
 };
 
 const LoginPage: React.FC<Props> = ({ onSwitch }) => {
@@ -28,7 +28,7 @@ const LoginPage: React.FC<Props> = ({ onSwitch }) => {
       }
       await login(email, password);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unknown error occurred.');
+      setError(err instanceof Error ? err.message : 'अज्ञात त्रुटी आली.');
     } finally {
       setIsLoading(false);
     }
@@ -40,7 +40,8 @@ const LoginPage: React.FC<Props> = ({ onSwitch }) => {
     try {
       await loginWithGoogle();
     } catch (err: any) {
-      const msg = err instanceof Error ? err.message : 'An unknown error occurred.';
+      const msg = err instanceof Error ? err.message : 'अज्ञात त्रुटी आली.';
+      // Google redirect मेसेज असेल तर UI मध्ये न दाखवण्यासाठी हे तसेच ठेवलं आहे
       if (!msg.includes('Redirecting to Google sign-in')) {
         setError(msg);
         setIsGoogleLoading(false);
@@ -57,10 +58,10 @@ const LoginPage: React.FC<Props> = ({ onSwitch }) => {
 
       {/* Title */}
       <h1 className="text-2xl sm:text-3xl font-extrabold text-center text-gray-900">
-        Welcome Farmer!
+        स्वागत आहे, शेतकरी!
       </h1>
       <p className="mt-1 text-center text-gray-500">
-        Your intelligent farming assistant
+        तुमचा स्मार्ट शेती सहाय्यक
       </p>
 
       {/* Error */}
@@ -75,7 +76,7 @@ const LoginPage: React.FC<Props> = ({ onSwitch }) => {
         {/* Email */}
         <div>
           <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">
-            Email
+            ईमेल
           </label>
           <div className="relative">
             <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -86,7 +87,7 @@ const LoginPage: React.FC<Props> = ({ onSwitch }) => {
               type="email"
               autoComplete="email"
               required
-              placeholder="farmer@example.com"
+              placeholder="उदा., farmer@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="block w-full rounded-xl border border-gray-300 bg-white py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-green-600 focus:ring-2 focus:ring-green-200 outline-none"
@@ -97,9 +98,9 @@ const LoginPage: React.FC<Props> = ({ onSwitch }) => {
         {/* Password */}
         <div>
           <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700">
-            Password
+            पासवर्ड
           </label>
-        <div className="relative">
+          <div className="relative">
             <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
               <Lock className="h-4 w-4 text-gray-400" />
             </span>
@@ -125,10 +126,13 @@ const LoginPage: React.FC<Props> = ({ onSwitch }) => {
               checked={remember}
               onChange={(e) => setRemember(e.target.checked)}
             />
-            Remember me
+            मला लक्षात ठेवा
           </label>
-          <a href="/forgot-password" className="text-sm font-medium text-green-600 hover:text-green-700">
-            Forgot password?
+          <a
+            href="/forgot-password"
+            className="text-sm font-medium text-green-600 hover:text-green-700"
+          >
+            पासवर्ड विसरलात?
           </a>
         </div>
 
@@ -138,7 +142,7 @@ const LoginPage: React.FC<Props> = ({ onSwitch }) => {
           disabled={isLoading}
           className="mt-1 inline-flex w-full items-center justify-center rounded-xl bg-green-600 px-4 py-3 text-white text-base font-semibold shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300 disabled:opacity-70"
         >
-          {isLoading ? 'Signing in…' : 'Sign In'}
+          {isLoading ? 'साइन इन होत आहे…' : 'साइन इन करा'}
         </button>
       </form>
 
@@ -148,20 +152,26 @@ const LoginPage: React.FC<Props> = ({ onSwitch }) => {
           <div className="w-full border-t border-gray-200" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-white px-3 text-sm text-gray-500">Or continue with</span>
+          <span className="bg-white px-3 text-sm text-gray-500">
+            किंवा पुढे जा
+          </span>
         </div>
       </div>
 
       {/* Google */}
       <GoogleButton onClick={handleGoogleLogin} isLoading={isGoogleLoading}>
-        Sign in with Google
+        Google द्वारे साइन इन करा
       </GoogleButton>
 
       {/* Footer link */}
       <p className="mt-6 text-center text-sm text-gray-600">
-        Don&apos;t have an account?{' '}
-        <button type="button" onClick={onSwitch} className="font-semibold text-green-600 hover:text-green-700">
-          Register now
+        खाते नाहीये का?{' '}
+        <button
+          type="button"
+          onClick={onSwitch}
+          className="font-semibold text-green-600 hover:text-green-700"
+        >
+          नवीन नोंदणी करा
         </button>
       </p>
     </div>

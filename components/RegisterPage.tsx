@@ -4,7 +4,7 @@ import GoogleButton from './ui/GoogleButton';
 import { Mail, Lock, User2, Sprout } from 'lucide-react';
 
 type Props = {
-  onSwitch?: () => void; // switch to Login
+  onSwitch?: () => void; // Login कडे स्विच करण्यासाठी
 };
 
 const RegisterPage: React.FC<Props> = ({ onSwitch }) => {
@@ -19,7 +19,7 @@ const RegisterPage: React.FC<Props> = ({ onSwitch }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password.length < 6) {
-      setError('Password must be at least 6 characters long.');
+      setError('पासवर्ड किमान ६ अक्षरांचा असावा.');
       return;
     }
     setError(null);
@@ -27,7 +27,7 @@ const RegisterPage: React.FC<Props> = ({ onSwitch }) => {
     try {
       await register(name.trim(), email, password);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unknown error occurred.');
+      setError(err instanceof Error ? err.message : 'अज्ञात त्रुटी आली.');
     } finally {
       setIsLoading(false);
     }
@@ -39,7 +39,8 @@ const RegisterPage: React.FC<Props> = ({ onSwitch }) => {
     try {
       await loginWithGoogle();
     } catch (err: any) {
-      const msg = err instanceof Error ? err.message : 'An unknown error occurred.';
+      const msg = err instanceof Error ? err.message : 'अज्ञात त्रुटी आली.';
+      // SDK कडून येणारा redirect मेसेज तसाच ठेवला आहे
       if (!msg.includes('Redirecting to Google sign-in')) {
         setError(msg);
         setIsGoogleLoading(false);
@@ -56,9 +57,11 @@ const RegisterPage: React.FC<Props> = ({ onSwitch }) => {
 
       {/* Title */}
       <h1 className="text-2xl sm:text-3xl font-extrabold text-center text-gray-900">
-        Create your account
+        नवीन खाते तयार करा
       </h1>
-      <p className="mt-1 text-center text-gray-500">And start managing your farm</p>
+      <p className="mt-1 text-center text-gray-500">
+        आणि तुमचे शेती व्यवस्थापन सुरु करा
+      </p>
 
       {/* Error */}
       {error && (
@@ -72,7 +75,7 @@ const RegisterPage: React.FC<Props> = ({ onSwitch }) => {
         {/* Name */}
         <div>
           <label htmlFor="name" className="mb-1 block text-sm font-medium text-gray-700">
-            Full Name
+            पूर्ण नाव
           </label>
           <div className="relative">
             <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -83,7 +86,7 @@ const RegisterPage: React.FC<Props> = ({ onSwitch }) => {
               type="text"
               autoComplete="name"
               required
-              placeholder="Rajesh Kumar"
+              placeholder="उदा., राजेश कुमार"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="block w-full rounded-xl border border-gray-300 bg-white py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-green-600 focus:ring-2 focus:ring-green-200 outline-none"
@@ -94,7 +97,7 @@ const RegisterPage: React.FC<Props> = ({ onSwitch }) => {
         {/* Email */}
         <div>
           <label htmlFor="email-register" className="mb-1 block text-sm font-medium text-gray-700">
-            Email address
+            ईमेल पत्ता
           </label>
           <div className="relative">
             <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -105,7 +108,7 @@ const RegisterPage: React.FC<Props> = ({ onSwitch }) => {
               type="email"
               autoComplete="email"
               required
-              placeholder="farmer@example.com"
+              placeholder="उदा., farmer@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="block w-full rounded-xl border border-gray-300 bg-white py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-green-600 focus:ring-2 focus:ring-green-200 outline-none"
@@ -116,7 +119,7 @@ const RegisterPage: React.FC<Props> = ({ onSwitch }) => {
         {/* Password */}
         <div>
           <label htmlFor="password-register" className="mb-1 block text-sm font-medium text-gray-700">
-            Password
+            पासवर्ड
           </label>
           <div className="relative">
             <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -141,7 +144,7 @@ const RegisterPage: React.FC<Props> = ({ onSwitch }) => {
           disabled={isLoading}
           className="inline-flex w-full items-center justify-center rounded-xl bg-green-600 px-4 py-3 text-white text-base font-semibold shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300 disabled:opacity-70"
         >
-          {isLoading ? 'Creating…' : 'Sign Up'}
+          {isLoading ? 'खाते तयार करत आहे…' : 'नोंदणी करा'}
         </button>
       </form>
 
@@ -151,20 +154,24 @@ const RegisterPage: React.FC<Props> = ({ onSwitch }) => {
           <div className="w-full border-t border-gray-200" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-white px-3 text-sm text-gray-500">Or</span>
+          <span className="bg-white px-3 text-sm text-gray-500">किंवा</span>
         </div>
       </div>
 
       {/* Google */}
       <GoogleButton onClick={handleGoogleRegister} isLoading={isGoogleLoading}>
-        Sign up with Google
+        Google द्वारे नोंदणी करा
       </GoogleButton>
 
       {/* Footer link */}
       <p className="mt-6 text-center text-sm text-gray-600">
-        Already have an account?{' '}
-        <button type="button" onClick={onSwitch} className="font-semibold text-green-600 hover:text-green-700">
-          Sign in
+        आधीच खाते आहे का?{' '}
+        <button
+          type="button"
+          onClick={onSwitch}
+          className="font-semibold text-green-600 hover:text-green-700"
+        >
+          साइन इन करा
         </button>
       </p>
     </div>

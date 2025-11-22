@@ -15,16 +15,16 @@ import {
 const WeatherPage: React.FC = () => {
   const [weather, setWeather] = useState<{ current: CurrentWeather; daily: DailyWeather[] } | null>(null);
   const [place, setPlace] = useState<string>('');
-  const [displayName, setDisplayName] = useState<string>('Farmer');
+  const [displayName, setDisplayName] = useState<string>('शेतीकरी');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [debug, setDebug] = useState<string | null>(null);
 
   const greeting = (() => {
     const h = new Date().getHours();
-    if (h < 12) return 'Good Morning';
-    if (h < 18) return 'Good Afternoon';
-    return 'Good Evening';
+    if (h < 12) return 'शुभ प्रभात';
+    if (h < 18) return 'शुभ दुपार';
+    return 'शुभ संध्याकाळ';
   })();
 
   const fetchAll = useCallback(async (lat: number, lon: number) => {
@@ -39,9 +39,9 @@ const WeatherPage: React.FC = () => {
       ]);
       setWeather(f);
       setPlace(name);
-      setDisplayName(userName);
+      setDisplayName(userName || 'शेतीकरी');
     } catch (e: any) {
-      setError('Failed to fetch weather data. Please try again.');
+      setError('हवामान माहितीत अडचण आली. कृपया पुन्हा प्रयत्न करा.');
       setDebug(String(e?.message || e));
       setWeather(null);
       setPlace('');
@@ -55,14 +55,14 @@ const WeatherPage: React.FC = () => {
     setError(null);
     setDebug(null);
     if (!navigator.geolocation) {
-      setError('Geolocation is not supported by your browser.');
+      setError('तुमच्या ब्राउझरमध्ये लोकेशन सुविधा उपलब्ध नाही.');
       setLoading(false);
       return;
     }
     navigator.geolocation.getCurrentPosition(
       (position) => fetchAll(position.coords.latitude, position.coords.longitude),
       () => {
-        setError('Unable to retrieve your location. Please enable location services.');
+        setError('लोकेशन मिळत नाही. कृपया लोकेशन सेवा सुरू करा.');
         setLoading(false);
       }
     );
@@ -99,8 +99,10 @@ const WeatherPage: React.FC = () => {
 
           {debug && (
             <details className="mb-4 text-sm text-gray-600">
-              <summary className="cursor-pointer">Show error details</summary>
-              <pre className="mt-2 whitespace-pre-wrap break-words text-left bg-gray-50 p-3 rounded">{debug}</pre>
+              <summary className="cursor-pointer">त्रुटीची सविस्तर माहिती दाखवा</summary>
+              <pre className="mt-2 whitespace-pre-wrap break-words text-left bg-gray-50 p-3 rounded">
+                {debug}
+              </pre>
             </details>
           )}
 
@@ -109,18 +111,18 @@ const WeatherPage: React.FC = () => {
               onClick={getLocation}
               className="bg-green-600 text-white px-6 py-2 rounded-lg font-medium"
             >
-              Try Again
+              पुन्हा प्रयत्न करा
             </button>
             <button
               onClick={useSample}
               className="bg-gray-200 text-gray-900 px-6 py-2 rounded-lg font-medium"
             >
-              Use Sample (Mumbai)
+              नमुना वापरा (मुंबई)
             </button>
           </div>
 
           <p className="text-xs text-gray-500 mt-4">
-            Tips: ensure <code>VITE_OPENWEATHER_API_KEY</code> (or <code>REACT_APP_OPENWEATHER_API_KEY</code>) is set, use HTTPS for geolocation.
+            सूचना: <code>VITE_OPENWEATHER_API_KEY</code> योग्य सेट केले आहे याची खात्री करा आणि geolocation साठी HTTPS वापरा.
           </p>
         </div>
       </div>
@@ -160,14 +162,16 @@ const WeatherPage: React.FC = () => {
         </div>
 
         {/* Big Weather Card */}
-        <div className="relative rounded-3xl p-5 text-white shadow-xl overflow-hidden"
-             style={{ background: 'linear-gradient(135deg, #4A90E2 0%, #357ABD 100%)' }}>
+        <div
+          className="relative rounded-3xl p-5 text-white shadow-xl overflow-hidden"
+          style={{ background: 'linear-gradient(135deg, #4A90E2 0%, #357ABD 100%)' }}
+        >
           {/* subtle shapes */}
           <div className="absolute -top-6 -right-6 w-24 h-24 bg-white/10 rounded-3xl rotate-12" />
           <div className="absolute top-6 right-6 text-white/70">{bigIcon}</div>
 
-          <div className="text-sm text-white/90">Today’s Weather</div>
-          <div className="text-xs text-white/80 mb-3">{place || 'Your location'}</div>
+          <div className="text-sm text-white/90">आजचे हवामान</div>
+          <div className="text-xs text-white/80 mb-3">{place || 'आपले ठिकाण'}</div>
 
           <div className="flex items-end gap-3">
             <div className="text-5xl font-extrabold leading-none">
@@ -182,31 +186,38 @@ const WeatherPage: React.FC = () => {
           <div className="mt-4 grid grid-cols-3 gap-3">
             <div className="rounded-2xl bg-white/15 backdrop-blur p-3 text-center">
               <div className="flex justify-center mb-1"><Droplets className="w-5 h-5" /></div>
-              <div className="text-xs opacity-90">Humidity</div>
+              <div className="text-xs opacity-90">आर्द्रता</div>
               <div className="text-sm font-semibold">{weather.current.humidity}%</div>
             </div>
             <div className="rounded-2xl bg-white/15 backdrop-blur p-3 text-center">
               <div className="flex justify-center mb-1"><Wind className="w-5 h-5" /></div>
-              <div className="text-xs opacity-90">Wind</div>
+              <div className="text-xs opacity-90">वारा</div>
               <div className="text-sm font-semibold">
-                {Number.isFinite(weather.current.wind_speed) ? weather.current.wind_speed.toFixed(0) : '—'} km/h
+                {Number.isFinite(weather.current.wind_speed)
+                  ? weather.current.wind_speed.toFixed(0)
+                  : '—'}{' '}
+                किमी/तास
               </div>
             </div>
             <div className="rounded-2xl bg-white/15 backdrop-blur p-3 text-center">
               <div className="flex justify-center mb-1"><CloudRain className="w-5 h-5" /></div>
-              <div className="text-xs opacity-90">Rainfall</div>
-              <div className="text-sm font-semibold">{rainfall?.toFixed ? rainfall.toFixed(0) : rainfall} mm</div>
+              <div className="text-xs opacity-90">पाऊस</div>
+              <div className="text-sm font-semibold">
+                {rainfall?.toFixed ? rainfall.toFixed(0) : rainfall} मिमी
+              </div>
             </div>
           </div>
         </div>
 
         {/* 3-Day Forecast */}
         <div>
-          <div className="text-gray-900 font-semibold mb-3">3-Day Forecast</div>
+          <div className="text-gray-900 font-semibold mb-3">३ दिवसांचे अंदाज</div>
           <div className="grid grid-cols-3 gap-3">
             {weather.daily.slice(0, 3).map((day, index) => {
-              const label = index === 0 ? 'Tomorrow'
-                : day.date.toLocaleDateString(undefined, { weekday: 'short' });
+              const label =
+                index === 0
+                  ? 'उद्या'
+                  : day.date.toLocaleDateString(undefined, { weekday: 'short' });
               const icon = (() => {
                 const d = day.description.toLowerCase();
                 if (d.includes('rain')) return <CloudRain className="w-5 h-5" />;
@@ -215,11 +226,18 @@ const WeatherPage: React.FC = () => {
                 return <Sun className="w-5 h-5" />;
               })();
               return (
-                <div key={day.date.toISOString()} className="rounded-2xl border border-gray-200 bg-white p-3 text-center shadow-sm">
+                <div
+                  key={day.date.toISOString()}
+                  className="rounded-2xl border border-gray-200 bg-white p-3 text-center shadow-sm"
+                >
                   <div className="text-xs text-gray-600 mb-1">{label}</div>
                   <div className="flex justify-center mb-1">{icon}</div>
-                  <div className="text-xl font-semibold text-gray-900">{day.max.toFixed(0)}°C</div>
-                  <div className="text-[11px] text-gray-500 capitalize">{day.description}</div>
+                  <div className="text-xl font-semibold text-gray-900">
+                    {day.max.toFixed(0)}°C
+                  </div>
+                  <div className="text-[11px] text-gray-500 capitalize">
+                    {day.description}
+                  </div>
                 </div>
               );
             })}
@@ -228,22 +246,26 @@ const WeatherPage: React.FC = () => {
 
         {/* Quick Actions */}
         <div>
-          <div className="text-gray-900 font-semibold mb-3">Quick Actions</div>
+          <div className="text-gray-900 font-semibold mb-3">जलद क्रिया</div>
           <div className="grid grid-cols-2 gap-4">
             <button className="rounded-2xl bg-green-600 text-white p-4 text-left shadow hover:opacity-95 transition">
               <div className="flex items-center justify-between">
-                <div className="bg-white/20 rounded-xl p-2"><ClipboardList className="w-5 h-5" /></div>
+                <div className="bg-white/20 rounded-xl p-2">
+                  <ClipboardList className="w-5 h-5" />
+                </div>
               </div>
-              <div className="mt-3 font-semibold">Pesticide Log</div>
-              <div className="text-sm opacity-90">Track usage</div>
+              <div className="mt-3 font-semibold">कीटकनाशक नोंद</div>
+              <div className="text-sm opacity-90">वापराची नोंद ठेवा</div>
             </button>
 
             <button className="rounded-2xl bg-orange-500 text-white p-4 text-left shadow hover:opacity-95 transition">
               <div className="flex items-center justify-between">
-                <div className="bg-white/20 rounded-xl p-2"><Sprout className="w-5 h-5" /></div>
+                <div className="bg-white/20 rounded-xl p-2">
+                  <Sprout className="w-5 h-5" />
+                </div>
               </div>
-              <div className="mt-3 font-semibold">Crop Tips</div>
-              <div className="text-sm opacity-90">Get advice</div>
+              <div className="mt-3 font-semibold">पीक मार्गदर्शन</div>
+              <div className="text-sm opacity-90">सल्ला मिळवा</div>
             </button>
           </div>
         </div>
@@ -251,26 +273,30 @@ const WeatherPage: React.FC = () => {
         {/* Recent Logs (static placeholders) */}
         <div className="space-y-3">
           <div className="flex items-center justify-between mb-2">
-            <div className="text-gray-900 font-semibold">Recent Logs</div>
-            <button className="text-green-600 text-sm font-medium">View All</button>
+            <div className="text-gray-900 font-semibold">अलीकडील नोंदी</div>
+            <button className="text-green-600 text-sm font-medium">सर्व पहा</button>
           </div>
 
           <div className="rounded-2xl bg-white border border-gray-200 p-3 flex items-center gap-3 shadow-sm">
-            <div className="rounded-xl bg-green-100 p-2"><ClipboardList className="w-5 h-5 text-green-700" /></div>
+            <div className="rounded-xl bg-green-100 p-2">
+              <ClipboardList className="w-5 h-5 text-green-700" />
+            </div>
             <div className="flex-1">
-              <div className="font-medium text-gray-900">Cypermethrin 10% EC</div>
-              <div className="text-xs text-gray-600">Applied on: May 16, 2024</div>
-              <div className="text-xs text-gray-600">Field A • Cotton Crop</div>
+              <div className="font-medium text-gray-900">सायपरमेथ्रिन 10% EC</div>
+              <div className="text-xs text-gray-600">फवारणी तारीख: १६ मे २०२४</div>
+              <div className="text-xs text-gray-600">शेत A • कापूस पीक</div>
             </div>
             <ChevronRight className="w-5 h-5 text-gray-400" />
           </div>
 
           <div className="rounded-2xl bg-white border border-gray-200 p-3 flex items-center gap-3 shadow-sm">
-            <div className="rounded-xl bg-indigo-100 p-2"><ClipboardList className="w-5 h-5 text-indigo-700" /></div>
+            <div className="rounded-xl bg-indigo-100 p-2">
+              <ClipboardList className="w-5 h-5 text-indigo-700" />
+            </div>
             <div className="flex-1">
-              <div className="font-medium text-gray-900">Imidacloprid 17.8% SL</div>
-              <div className="text-xs text-gray-600">Applied on: May 10, 2024</div>
-              <div className="text-xs text-gray-600">Field B • Wheat Crop</div>
+              <div className="font-medium text-gray-900">इमिडाक्लोप्रिड 17.8% SL</div>
+              <div className="text-xs text-gray-600">फवारणी तारीख: १० मे २०२४</div>
+              <div className="text-xs text-gray-600">शेत B • गहू पीक</div>
             </div>
             <ChevronRight className="w-5 h-5 text-gray-400" />
           </div>

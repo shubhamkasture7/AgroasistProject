@@ -58,7 +58,7 @@ const AnalyzerPage: React.FC = () => {
 
   const handleAnalyze = async () => {
     if (!imageFile || !prompt) {
-      setError('Please provide an image and a question.');
+      setError('कृपया फोटो आणि प्रश्न दोन्ही भरा.');
       return;
     }
     setIsLoading(true);
@@ -68,7 +68,11 @@ const AnalyzerPage: React.FC = () => {
       const result = await analyzePlantImage(imageFile, prompt);
       setAnalysisResult(result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unexpected error occurred during analysis.');
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'विश्लेषण करताना अनपेक्षित त्रुटी आली.'
+      );
     } finally {
       setIsLoading(false);
     }
@@ -93,36 +97,38 @@ const AnalyzerPage: React.FC = () => {
     return (
       <div className="space-y-4">
         <div className="flex flex-wrap items-center gap-2">
-          <h3 className="text-lg font-semibold text-gray-900">Diagnosis</h3>
-          {typeof severity === 'string' && <Badge>{`Severity: ${severity}`}</Badge>}
-          {typeof need_expert === 'boolean' && need_expert && <Badge>Expert review suggested</Badge>}
-          {typeof confPct === 'number' && <Badge>{`Confidence: ${confPct}%`}</Badge>}
+          <h3 className="text-lg font-semibold text-gray-900">निदान</h3>
+          {typeof severity === 'string' && <Badge>{`तीव्रता: ${severity}`}</Badge>}
+          {typeof need_expert === 'boolean' && need_expert && <Badge>तज्ञ सल्ल्याची शिफारस</Badge>}
+          {typeof confPct === 'number' && <Badge>{`विश्वास: ${confPct}%`}</Badge>}
         </div>
 
         <p className="text-gray-800">{textify(diagnosis)}</p>
 
         <div className="grid md:grid-cols-2 gap-6">
           <div>
-            <h4 className="font-semibold text-gray-900 mb-2">Probable causes</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">संभाव्य कारणे</h4>
             <SafeList items={probable_causes} />
           </div>
           <div>
-            <h4 className="font-semibold text-gray-900 mb-2">Recommended actions</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">शिफारस केलेल्या कृती</h4>
             <SafeList items={recommended_actions} />
           </div>
         </div>
 
         {warnings && warnings.length > 0 && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-            <h4 className="font-semibold text-yellow-900 mb-1">Warnings</h4>
+            <h4 className="font-semibold text-yellow-900 mb-1">सूचना</h4>
             <SafeList items={warnings} />
           </div>
         )}
 
         <div className="text-xs text-gray-500">
-          <span>Captured: {metadata?.captured_on ? new Date(metadata.captured_on).toLocaleString() : '—'}</span>
+          <span>
+            नोंद वेळ: {metadata?.captured_on ? new Date(metadata.captured_on).toLocaleString() : '—'}
+          </span>
           <span className="mx-2">•</span>
-          <span>Prompt: {metadata?.prompt || '—'}</span>
+          <span>प्रश्न: {metadata?.prompt || '—'}</span>
         </div>
       </div>
     );
@@ -131,10 +137,12 @@ const AnalyzerPage: React.FC = () => {
   return (
     <div className="space-y-6">
       <Card>
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Crop Analyzer</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">पीक विश्लेषक (Crop Analyzer)</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">1. Upload Plant Image</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              १. पिकाचा फोटो अपलोड करा
+            </label>
             <input
               type="file"
               accept="image/*"
@@ -147,39 +155,45 @@ const AnalyzerPage: React.FC = () => {
               htmlFor="analyzer-image-upload"
               className="cursor-pointer bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             >
-              Select Image
+              फोटो निवडा
             </label>
             {imagePreview && (
               <div className="mt-4">
-                <img src={imagePreview} alt="Plant preview" className="rounded-lg max-h-48 w-auto" />
+                <img
+                  src={imagePreview}
+                  alt="पिकाचा प्रीव्ह्यू"
+                  className="rounded-lg max-h-48 w-auto"
+                />
               </div>
             )}
           </div>
 
           <Input
-            label="2. Describe the issue or ask a question"
+            label="२. समस्या वर्णन करा किंवा प्रश्न विचारा"
             id="prompt"
             type="text"
-            placeholder="e.g., What disease is this?"
+            placeholder="उदा., या पानावर कोणता रोग आहे?"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             required
           />
 
           <Button onClick={handleAnalyze} isLoading={isLoading} disabled={!prompt || !imageFile}>
-            Analyze Plant
+            पिकाचे विश्लेषण करा
           </Button>
         </div>
       </Card>
 
       {(isLoading || error || analysisResult) && (
         <Card>
-          <h2 className="text-xl font-bold text-gray-800 mb-2">Analysis Result</h2>
+          <h2 className="text-xl font-bold text-gray-800 mb-2">विश्लेषण परिणाम</h2>
 
           {isLoading && (
             <div className="flex flex-col items-center justify-center text-center space-y-2">
               <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
-              <p className="text-gray-600">Analyzing with Gemini... Please wait.</p>
+              <p className="text-gray-600">
+                Gemini कडून विश्लेषण सुरू आहे... कृपया थोडा वेळ थांबा.
+              </p>
             </div>
           )}
 
