@@ -26,5 +26,10 @@ export default defineConfig(({ mode }) => {
         '@': path.resolve(__dirname, '.'),
       },
     },
+    build: {
+      // Increase the chunk size warning limit to 2 MB to avoid noisy warnings during dev builds.
+      // Value is in kB per Vite: 2000 kB = ~2 MB
+      chunkSizeWarningLimit: 2000,
+    },
   };
 });
