@@ -137,7 +137,7 @@ const AnalyzerPage: React.FC = () => {
   return (
     <div className="space-y-6">
       <Card>
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">पीक विश्लेषक (Crop Analyzer)</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">पीक विश्लेषक </h2>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">

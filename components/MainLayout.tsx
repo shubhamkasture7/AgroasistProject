@@ -28,7 +28,7 @@ const MainLayout: React.FC = () => {
     <div className="flex flex-col h-screen max-w-lg mx-auto bg-white shadow-2xl">
       <header className="flex items-center justify-between p-4 bg-green-600 text-white shadow-md">
         <div>
-          <h1 className="text-xl font-bold">AgroAssist</h1>
+          <h1 className="text-xl font-bold">Krushidoot</h1>
           <p className="text-sm">Welcome, {user?.displayName}!</p>
         </div>
         <button onClick={logout} className="p-2 rounded-full hover:bg-green-700 transition">
